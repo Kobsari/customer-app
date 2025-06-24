@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <title>កម្មវិធីកត់ត្រាអតិថិជន - Summary Card</title>
+  <style>
+    body {
+      font-family: 'Battambang', sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 6px 8px 6px 0;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    button {
+      background: #2a8cc9;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 10px 18px;
+    }
+    button.delete {
+      background-color: #e74c3c;
+      padding: 6px 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+    }
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 12px 15px;
+      text-align: left;
+    }
+    th {
+      background: #2a8cc9;
+      color: white;
+    }
+    #summaryCard {
+      background: #ffffff;
+      border: 2px solid #2a8cc9;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 12px rgba(42, 140, 201, 0.3);
+      transition: all 0.3s ease;
+      max-width: 800px;
+    }
+    #summaryCard:hover {
+      box-shadow: 0 8px 20px rgba(42, 140, 201, 0.5);
+      border-color: #1f6db3;
+    }
+    #summaryCard h3 {
+      margin-top: 0;
+      color: #2a8cc9;
+    }
+    #summaryContent {
+      font-size: 1.1em;
+      line-height: 1.8;
+    }
+    .pagination {
+      text-align: center;
+      margin: 10px auto;
+    }
+    .pagination button {
+      margin: 0 5px;
+      background-color: #3498db;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .pagination button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #loginOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #loginBox {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    #loginBox input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    #loginBox button {
+      width: 100%;
+      padding: 10px;
+      background-color: #2a8cc9;
+      color: white;
+      border: none;
+      font-size: 1.2em;
+      border-radius: 6px;
+    }
+    #loginError {
+      color: red;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div id="loginBox">
+    <h2>🔐 ចូលប្រើប្រាស់</h2>
+    <div id="loginError">ពាក្យសម្ងាត់មិនត្រឹមត្រូវ!</div>
+    <input type="password" id="passwordInput" placeholder="បញ្ចូលពាក្យសម្ងាត់" autofocus />
+    <button onclick="checkPassword()">ចូល</button>
+  </div>
+</div>
+
+<div id="appContent" style="display:none">
+  <h2>📋 កម្មវិធីកត់ត្រាអតិថិជន</h2>
+
+  <div class="card">
+    <input type="text" id="phone" placeholder="លេខទូរស័ព្ទ" />
+    <input type="text" id="ip" placeholder="IP" />
+    <select id="vip">
+      <option value="VIP1">VIP1</option>
+      <option value="VIP2">VIP2</option>
+      <option value="VIP3">VIP3</option>
+      <option value="SVIP1">SVIP1</option>
+      <option value="Block">Block</option>
+      <option value="Not Continue">Not Continue</option>
+    </select>
+    <input type="text" id="address" placeholder="អាសយដ្ឋាន" />
+    <input type="text" id="note" placeholder="សម្គាល់" />
+    <button onclick="addCustomer()">➕ បញ្ចូល</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>លេខរៀង</th>
+        <th>លេខទូរស័ព្ទ</th>
+        <th>IP</th>
+        <th>VIP</th>
+        <th>អាសយដ្ឋាន</th>
+        <th>សម្គាល់</th>
+        <th>លុប</th>
+      </tr>
+    </thead>
+    <tbody id="customerTable"></tbody>
+  </table>
+
+  <div class="pagination">
+    <button onclick="prevPage()" id="prevBtn">Previous</button>
+    <button onclick="nextPage()" id="nextBtn">Next</button>
+  </div>
+
+  <div class="card" id="summaryCard">
+    <h3>📊 សង្ខេបអតិថិជន</h3>
+    <div id="summaryContent"></div>
+  </div>
+</div>
+
+<script>
+  const correctPassword = "414141";
+
+  function checkPassword() {
+    const input = document.getElementById("passwordInput").value;
+    const errorDiv = document.getElementById("loginError");
+    if (input === correctPassword) {
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("appContent").style.display = "block";
+      renderTable();
+    } else {
+      errorDiv.style.display = "block";
+    }
+  }
+
+  let customers = JSON.parse(localStorage.getItem("customers")) || [];
+  let nextId = customers.length ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+  let currentPage = 1;
+  const rowsPerPage = 5;
+
+  function saveData() {
+    localStorage.setItem("customers", JSON.stringify(customers));
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("customerTable");
+    tbody.innerHTML = "";
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageCustomers = customers.slice(start, end);
+
+    pageCustomers.forEach((c) => {
+      const row = `<tr>
+        <td>${c.id}</td>
+        <td>${c.phone}</td>
+        <td>${c.ip}</td>
+        <td>${c.vip}</td>
+        <td>${c.address}</td>
+        <td>${c.note}</td>
+        <td><button class="delete" onclick="deleteCustomer(${c.id})">លុប</button></td>
+      </tr>`;
+      tbody.innerHTML += row;
+    });
+
+    document.getElementById("prevBtn").disabled = currentPage === 1;
+    document.getElementById("nextBtn").disabled = end >= customers.length;
+
+    renderSummary();
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+    }
+  }
+
+  function nextPage() {
+    if ((currentPage * rowsPerPage) < customers.length) {
+      currentPage++;
+      renderTable();
+    }
+  }
+
+  function renderSummary() {
+    const total = customers.length;
+    const counts = {
+      VIP1: 0, VIP2: 0, VIP3: 0, SVIP1: 0, Block: 0, "Not Continue": 0
+    };
+    customers.forEach(c => {
+      if (counts.hasOwnProperty(c.vip)) counts[c.vip]++;
+    });
+    document.getElementById("summaryContent").innerHTML = `
+      👥 សរុប: <strong>${total}</strong><br>
+      🥇 VIP1: ${counts.VIP1} | 🥈 VIP2: ${counts.VIP2} | 🥉 VIP3: ${counts.VIP3}<br>
+      💎 SVIP1: ${counts.SVIP1} | ⛔ Block: ${counts.Block} | ❌ Not Continue: ${counts["Not Continue"]}
+    `;
+  }
+
+  function addCustomer() {
+    const phone = document.getElementById("phone").value.trim();
+    const ip = document.getElementById("ip").value.trim();
+    const vip = document.getElementById("vip").value;
+    const address = document.getElementById("address").value.trim();
+    const note = document.getElementById("note").value.trim();
+
+    if (!phone || customers.some(c => c.phone === phone)) {
+      alert("លេខទូរសព្ទនេះមានរួចហើយ!");
+      return;
+    }
+
+    const newCustomer = { id: nextId++, phone, ip, vip, address, note };
+    customers.push(newCustomer);
+    saveData();
+
+    currentPage = Math.ceil(customers.length / rowsPerPage);
+    renderTable();
+    document.querySelectorAll("input").forEach(i => i.value = "");
+  }
+
+  function deleteCustomer(id) {
+    if (confirm("លុបអតិថិជននេះមែនទេ?")) {
+      customers = customers.filter(c => c.id !== id);
+      saveData();
+      if ((currentPage - 1) * rowsPerPage >= customers.length) {
+        currentPage = Math.max(1, currentPage - 1);
+      }
+      renderTable();
+    }
+  }
+</script>
+
+</body>
+</html>
